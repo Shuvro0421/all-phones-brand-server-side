@@ -74,27 +74,48 @@ async function run() {
     })
 
     //get the posted products
-    app.get('/products' , async (req , res) =>{
+    app.get('/products', async (req, res) => {
       const cursor = productCollection.find()
       const result = await cursor.toArray()
       res.send(result)
     })
 
     // get the products by their brand names
-    app.get('/products/:brandName' , async (req , res) =>{
+    app.get('/products/:brandName', async (req, res) => {
       const brandName = req.params.brandName
-      const query = {brandName : brandName}
+      const query = { brandName: brandName }
       const result = await productCollection.findOne(query)
       res.send(result)
     })
 
-    app.get('/products/singleProduct/:id' , async (req , res) =>{
+    app.get('/products/singleProduct/:id', async (req, res) => {
       const id = req.params.id
-      const query = {_id : new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await productCollection.findOne(query)
       res.send(result)
     })
 
+    // update the product id
+    app.put('/products/singleProduct/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updatedProduct = req.body
+      const coffee = {
+        $set: {
+
+          image : updatedProduct.image,
+          name: updatedProduct.name,
+          brandName: updatedProduct.brandName,
+          type: updatedProduct.type,
+          price: updatedProduct.price,
+          rating: updatedProduct.rating,
+        }
+      }
+
+      const result = await productCollection.updateOne(filter, coffee, options)
+      res.send(result)
+    })
 
 
     // get the brands 

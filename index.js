@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // middleware
 app.use(cors());
@@ -62,9 +62,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-
+    // created database and db collection
     const productCollection = client.db("productDB").collection("products")
-    
+
+    // posted products
     app.post('/products', async (req, res) => {
       const products = req.body
       console.log(products)
@@ -72,12 +73,22 @@ async function run() {
       res.send(result)
     })
 
+    //get the posted products
     app.get('/products' , async (req , res) =>{
       const cursor = productCollection.find()
       const result = await cursor.toArray()
       res.send(result)
     })
 
+    // get the products by their brand names
+    app.get('/products/:brandName' , async (req , res) =>{
+      const brandName = req.params.brandName
+      const query = {brandName : brandName}
+      const result = await productCollection.findOne(query)
+      res.send(result)
+    })
+
+    // get the brands 
     app.get('/brands', (req, res) => {
       res.send(brands)
     })

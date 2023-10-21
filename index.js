@@ -64,6 +64,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // created database and db collection
     const productCollection = client.db("productDB").collection("products")
+    const cartCollection = client.db("productDB").collection("cart")
 
     // posted products
     app.post('/products', async (req, res) => {
@@ -95,6 +96,29 @@ async function run() {
       res.send(result)
     })
 
+    // post add to cart
+    app.post('/cart', async (req, res) => {
+      const products = req.body
+      console.log(products)
+      const result = await cartCollection.insertOne(products)
+      res.send(result)
+    })
+    // get add to cart
+    app.get('/cart', async (req, res) => {
+      const cursor = cartCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+
+    // delete add to cart id 
+    app.delete('/cart/:_id', async (req, res) => {
+      const id = req.params._id
+      const query = { _id: id }
+      const result = await cartCollection.deleteOne(query)
+      res.send(result)
+  })
+
     // update the product id
     app.put('/products/singleProduct/:id', async (req, res) => {
       const id = req.params.id
@@ -104,7 +128,7 @@ async function run() {
       const coffee = {
         $set: {
 
-          image : updatedProduct.image,
+          image: updatedProduct.image,
           name: updatedProduct.name,
           brandName: updatedProduct.brandName,
           type: updatedProduct.type,
